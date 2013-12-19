@@ -1,6 +1,7 @@
 ﻿<?php
 	/*
-	Stable version of SVGCheck © 2011 Harry Burt <jarry1250@gmail.com>
+	Stable version of SVGCheck © 2011-2013 Harry Burt <jarry1250@gmail.com>
+	There is an associated crontab for this tool
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +23,9 @@
 	require_once( 'common.php' );
 	require_once( '/data/project/jarry-common/public_html/global.php' );
 
+	// If changing $permatempPath, note the hardcoding of the 'external' version below
+	$permatempPath = '/data/project/svgcheck/public_html/permatemp/';
+
 	$regexpart = '/^[a-zA-Z0-9 ;()_]+$/';
 	$regexfull = '/^[a-zA-Z0-9 ;()_]+[.]svg$/';
 	$diagnose = ( isset( $_POST['options'] ) && in_array( 'diagnose', $_POST['options'] ) ) ? true : false;
@@ -37,29 +41,29 @@
 			die( $text );
 		}
 		$name = basename( $_FILES['uploadedfile']['name'] );
-		$target_path = strtolower( "permatemp/" . $name );
-		if( $_FILES['uploadedfile']['error'] != 0 ){
-			die( "There was an unknown upload error." );
-		}
-		$shortname = substr( $name, 0, -4 );
 		if( preg_match( $regexfull, $name ) === false ){
 			die ( "For security reasons, we require that you use a simpler name." );
 		}
-		if( move_uploaded_file( $_FILES['uploadedfile']['tmp_name'], $target_path ) ){
-			exec( "rsvg-convert '" . $target_path . "' -o 'permatemp/" . $shortname . ".png'" );
-			list( $width, $height ) = getimagesize( "permatemp/" . $shortname . ".png" );
+		if( $_FILES['uploadedfile']['error'] != 0 ){
+			die( "There was an unknown upload error." );
+		}
+		$svgPath = $permatempPath . strtolower( $name );
+		$pngPath = substr( $svgPath, 0, -4 ) . '.png';
+		if( move_uploaded_file( $_FILES['uploadedfile']['tmp_name'], $svgPath ) ){
+			exec( "/usr/bin/rsvg-convert '" . $svgPath . "' -o '" . $pngPath . "'" );
+			exec( "chmod 0605 $pngPath" );
+			list( $width, $height ) = getimagesize(  $pngPath  );
 			?>
 			<h3>What it will render like</h3>
-			<p>This image was rendered using rsvg version 2.35.2; as of time of writing, Wikimedia wikis use a slightly
-				different version (2.36.1). Note also that this is a temporary rendering and will soon be deleted.</p>
+			<p>This image was rendered using rsvg version 2.36.1; as of time of writing, this is exactly the same version as in use on Wikimedia wikis. Note also that this is a temporary rendering and will soon be deleted.</p>
 			<p>
 			<div
 				style="background: url(transcheck.png) repeat; width:<?php echo $width; ?>px; height:<?php echo $height; ?>px;">
 				<img width="<?php echo $width; ?>px" height="<?php echo $height; ?>px"
-					 src="permatemp/<?php echo $shortname; ?>.png"/></div></p>
+					 src="permatemp/<?php echo substr( strtolower( $name ), 0, -4 ) . '.png'; ?>"/></div></p>
 			<?php
 			if( $diagnose ){
-				$f = fopen( $target_path, 'r' ) or die( "There was an error reading the file for error diagnosis purposes." );
+				$f = fopen( $svgPath, 'r' ) or die( "There was an error reading the file for error diagnosis purposes." );
 				echo '<h3>Debugging information</h3>' . "\n<pre>Starting to debug...\n";
 				$ln = 1;
 				$noerrorsfound = true;
@@ -80,31 +84,22 @@
 				fclose( $f );
 				echo "\n</pre>";
 			}
+			unlink( $svgPath );
 			?>
 			<form action="index.php" method="post">
-				<input type="hidden" name="old" value="<?php echo $shortname; ?>"/>
+				<input type="hidden" name="old" value="<?php echo $name; ?>"/>
 				<input type="submit" value="Hold on, I have another to check"/>
 			</form>
 		<?php
 		} else {
-			echo "There was an error uploading the file, please try again!";
-			print_r( $_FILES );
+			echo "<br /><br />As you can see, there was an error uploading the file, please try again!";
 		}
 	} else {
 		if( isset( $_POST["old"] ) ){
 			$old = $_POST["old"];
 			if( preg_match( $regexpart, $old ) ){
-				unlink( "permatemp/" . strtolower( $old ) . ".svg" );
-				if( file_exists( "permatemp/$old" . "op.svg" ) ){
-					unlink( "permatemp/$old" . "op.svg" );
-				}
-				if( file_exists( "permatemp/$old" . "op2.svg" ) ){
-					unlink( "permatemp/$old" . "op2.svg" );
-				}
-				if( file_exists( "permatemp/$old" . "op2.png" ) ){
-					unlink( "permatemp/$old" . "op2.png" );
-				}
-				unlink( "permatemp/$old.png" );
+				unlink( $permatempPath . strtolower( $old ) );
+				unlink( $permatempPath . substr( strtolower( $old ), 0, -4 ) . ".png" );
 			}
 		}
 		?>
@@ -117,15 +112,14 @@
 			that the problem is found. Some errors are fixable using a GUI like Inkscape; others will require you to
 			edit the file using a text editor like Wordpad. </p>
 		<p>Please <strong>be patient</strong>, the process can take some time. Some filenames represent a possible
-			security risk and will be blocked, I'm sure you understand. Queries can be directed to me on-wiki or to my
+			security risk and will be blocked. Queries can be directed to me on-wiki or to my
 			username at Gmail (it stands for Google email, you know) dot com.</p>
 		<h3>Form</h3>
 		<form action="index.php" enctype="multipart/form-data" method="POST">
-			<input name="uploadedfile" type="file"/>&nbsp;&nbsp;&nbsp;<input type="checkbox" value="diagnose"
-																			 name="options[]" checked="checked"/>Check
-			this file for errors&nbsp;&nbsp;&nbsp;<input type="submit" value="Check this SVG"/>
+			<input name="uploadedfile" type="file"/>&nbsp;&nbsp;&nbsp;
+			<input type="checkbox" value="diagnose" name="options[]" checked="checked"/>Check this file for errors
+			&nbsp;&nbsp;&nbsp;<input type="submit" value="Check this SVG"/>
 		</form>
 	<?php
 	}
 	echo get_html( 'footer' );
-?>
