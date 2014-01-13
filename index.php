@@ -41,8 +41,8 @@
 			die( $text );
 		}
 		$name = basename( $_FILES['uploadedfile']['name'] );
-		if( preg_match( $regexfull, $name ) === false ){
-			die ( "For security reasons, we require that you use a simpler name." );
+		if( !preg_match( $regexfull, $name ) ){
+			die( "For security reasons, we require that you use a simpler name." );
 		}
 		if( $_FILES['uploadedfile']['error'] != 0 ){
 			die( "There was an unknown upload error." );
@@ -51,7 +51,7 @@
 		$pngPath = substr( $svgPath, 0, -4 ) . '.png';
 		if( move_uploaded_file( $_FILES['uploadedfile']['tmp_name'], $svgPath ) ){
 			exec( "/usr/bin/rsvg-convert '" . $svgPath . "' -o '" . $pngPath . "'" );
-			exec( "chmod 0605 $pngPath" );
+			exec( "chmod 0605 '$pngPath'" );
 			list( $width, $height ) = getimagesize(  $pngPath  );
 			?>
 			<h3>What it will render like</h3>
