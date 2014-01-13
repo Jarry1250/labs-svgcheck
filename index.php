@@ -41,6 +41,10 @@
 		}
 		$name = basename( $_FILES['uploadedfile']['name'] );
 		$name = preg_replace( $charset, '', $name );
+		if( strlen( $name ) == 4 ){
+			// All characters stripped
+			$name = 'Test.svg';
+		}
 		if( strtolower( substr( $name, -4 ) ) != '.svg' ){
 			die( "All SVG uploads should end in .svg. Please try again." );
 		}
