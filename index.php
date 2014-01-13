@@ -26,7 +26,7 @@
 	// If changing $permatempPath, note the hardcoding of the 'external' version below
 	$permatempPath = '/data/project/svgcheck/public_html/permatemp/';
 
-	$charset = '/[^a-zA-Z0-9 ;()_]/';
+	$charset = '/[^a-zA-Z0-9 ;()_.]/';
 	$diagnose = ( isset( $_POST['options'] ) && in_array( 'diagnose', $_POST['options'] ) ) ? true : false;
 
 	echo get_html( 'header', 'SVG Check' );
