@@ -26,8 +26,7 @@
 	// If changing $permatempPath, note the hardcoding of the 'external' version below
 	$permatempPath = '/data/project/svgcheck/public_html/permatemp/';
 
-	$regexpart = '/^[a-zA-Z0-9 ;()_]+$/';
-	$regexfull = '/^[a-zA-Z0-9 ;()_]+[.]svg$/';
+	$charset = '/[^a-zA-Z0-9 ;()_]/';
 	$diagnose = ( isset( $_POST['options'] ) && in_array( 'diagnose', $_POST['options'] ) ) ? true : false;
 
 	echo get_html( 'header', 'SVG Check' );
@@ -41,8 +40,9 @@
 			die( $text );
 		}
 		$name = basename( $_FILES['uploadedfile']['name'] );
-		if( !preg_match( $regexfull, $name ) ){
-			die( "For security reasons, we require that you use a simpler name." );
+		$name = preg_replace( $charset, '', $name );
+		if( strtolower( substr( $name, -4 ) ) != '.svg' ){
+			die( "All SVG uploads should end in .svg. Please try again." );
 		}
 		if( $_FILES['uploadedfile']['error'] != 0 ){
 			die( "There was an unknown upload error." );
@@ -97,7 +97,8 @@
 	} else {
 		if( isset( $_POST["old"] ) ){
 			$old = $_POST["old"];
-			if( preg_match( $regexpart, $old ) ){
+			$old = preg_replace( $charset, '', $old );
+			if( strtolower( substr( $old, -4 ) ) == '.svg' ){
 				unlink( $permatempPath . strtolower( $old ) );
 				unlink( $permatempPath . substr( strtolower( $old ), 0, -4 ) . ".png" );
 			}
