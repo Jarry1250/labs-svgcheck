@@ -22,6 +22,9 @@
 		if( strpos( $line, "http://" ) !== false && !preg_match( '/(([a-z]+)(:[a-z]+)?="|[<]![^>]*)http:/i', $line ) ){
 			$errors[] = "*Warning* http:// external reference found.\n\t These may be innocuous document declarations (particularly early on, and no problem)\n\t but if they form file references, they will not work (and may be blocked) by the Wikimedia software.\n\t All required elements need to be included in the SVG directly.";
 		}
+		if( strpos( $line, "<image" ) !== false ){
+			$errors[] = "*ERROR* image tag found.\n\t Since image tags refer to external references, they will not work (and may be blocked) by the Wikimedia software.\n\t All required elements need to be included in the SVG directly.";
+		}
 		if( strpos( $line, "C:\\" ) !== false ){
 			$errors[] = "*ERROR* Local file reference found.\n\t These will not work (and may be blocked) by the Wikimedia software.\n\t All required elements need to be included in the SVG directly.";
 		}
