@@ -59,7 +59,7 @@
 			list( $width, $height ) = getimagesize(  $pngPath  );
 			?>
 			<h3>What it will render like</h3>
-			<p>This image was rendered using rsvg version 2.36.1; as of time of writing, this is exactly the same version as in use on Wikimedia wikis. Note also that this is a temporary rendering and will soon be deleted.</p>
+			<p>This image was rendered using <?= exec( '/usr/bin/rsvg-convert -v' )?>, almost certainly the same version as in use on Wikimedia wikis. Note also that this is a temporary rendering and will soon be deleted.</p>
 			<p>
 			<div
 				style="background: url(transcheck.png) repeat; width:<?php echo $width; ?>px; height:<?php echo $height; ?>px;">
