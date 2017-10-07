@@ -32,9 +32,6 @@
 	if( isset( $_FILES['uploadedfile'] ) ){
 		if( !preg_match( '/^(application|image|text)\/svg(\+xml)?$/', $_FILES['uploadedfile']['type'] ) ){
 			die( "That file doesn't appear to be an SVG file." );
-			if( $_FILES['uploadedfile']['type'] === "application/x-octetstream" ){
-				$text .= ' On Firefox and convinced it is? This is a known bug with a <a href="http://www.harryburt.co.uk/blog/2012/04/01/svg-files-as-applicationx-octetstream/">simple fix</a>.';
-			}
 		}
 		$name = basename( $_FILES['uploadedfile']['name'] );
 		$name = preg_replace( $charset, '', $name );
