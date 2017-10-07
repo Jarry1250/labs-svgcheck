@@ -23,23 +23,27 @@
 
 	function isproblematic( $line ) {
 		$errors = array();
-		if( strpos( $line, "http://" ) !== false && !preg_match( '/(([a-z]+)(:[a-z]+)?="|[<]![^>]*)http:/i', $line ) ){
+
+		if( stripos( $line, "http://" ) !== false && !preg_match( '/(([a-z]+)(:[a-z]+)?="|[<]![^>]*)http:/i', $line ) ){
 			$errors[] = "*Warning* http:// external reference found.\n\t These may be innocuous document declarations (particularly early on, and no problem)\n\t but if they form file references, they will not work (and may be blocked) by the Wikimedia software.\n\t All required elements need to be included in the SVG directly.";
 		}
-		if( strpos( $line, "<image" ) !== false ){
+		if( stripos( $line, "<image" ) !== false ){
 			$errors[] = "*ERROR* image tag found.\n\t Since image tags refer to external references, they will not work (and may be blocked) by the Wikimedia software.\n\t All required elements need to be included in the SVG directly.";
 		}
-		if( strpos( $line, "C:\\" ) !== false ){
+		if( stripos( $line, "C:\\" ) !== false ){
 			$errors[] = "*ERROR* Local file reference found.\n\t These will not work (and may be blocked) by the Wikimedia software.\n\t All required elements need to be included in the SVG directly.";
 		}
-		if( strpos( $line, "<flow" ) !== false ){
+		if( stripos( $line, "<flow" ) !== false ){
 			$errors[] = "*ERROR* Flow element found.\n\t These will not render properly.\n\t If you're not actually trying to bend the text, try opening with a text editor and removing the elements.\n\t If you are actually trying to bend it, use 'Convert to path' (Inkscape) or similar.";
 		}
-		if( strpos( $line, "url(&quot;" ) !== false ){
+		if( stripos( $line, "url(&quot;" ) !== false ){
 			$errors[] = "*Warning* Your editor has accidentally added &quot; marks inside an url(), which you will need to remove by hand.";
 		}
-		if( preg_match( '/<[^ ]+:pgf/', $line ) ){
-			$errors[] = "*Warning* It appears you have a pgf metadata attribute. While in rare cases this can be helpful, it usually just adds to filesize, and can cause Inkscape and other editors to choke.";
+		if( stripos( $line, "<foreignObject" ) !== false ){
+			$errors[] = "*Warning* foreignObject tag found.\n\t Since foreignObject tags refer to metadata, they usually just add to filesize, and can cause Inkscape and other editors to choke.";
+		}
+		if( preg_match( '/<[^ \/]+:pgf([^R]|$)/', $line ) ){
+			$errors[] = "*Warning* It appears you have a pgf metadata attribute.\n\t While in rare cases this can be helpful, it usually just adds to filesize, and can cause Inkscape and other editors to choke.";
 		}
 		if( preg_match( '/= *"[^"]+ "/', $line ) ){
 			$errors[] = "*Warning* It appears you have a trailing space in one of your attributes. With certain attributes, this can cause a rendering problem.";
