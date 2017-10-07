@@ -17,6 +17,10 @@
 	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	*/
 
+	// Remember to change both!
+	$permatempPath = '/data/project/svgcheck/public_html/permatemp/';
+	$permatempWeb = 'permatemp/';
+
 	function isproblematic( $line ) {
 		$errors = array();
 		if( strpos( $line, "http://" ) !== false && !preg_match( '/(([a-z]+)(:[a-z]+)?="|[<]![^>]*)http:/i', $line ) ){

@@ -1,6 +1,6 @@
 ﻿<?php
 	/*
-	Stable version of SVGCheck © 2011-2013 Harry Burt <jarry1250@gmail.com>
+	Stable version of SVGCheck © 2011-2017 Harry Burt <jarry1250@gmail.com>
 	There is an associated crontab for this tool
 
 	This program is free software; you can redistribute it and/or modify
@@ -23,8 +23,6 @@
 	require_once( 'common.php' );
 	require_once( '/data/project/jarry-common/public_html/global.php' );
 
-	// If changing $permatempPath, note the hardcoding of the 'external' version below
-	$permatempPath = '/data/project/svgcheck/public_html/permatemp/';
 
 	$charset = '/[^a-zA-Z0-9 ;()_.]/';
 	$diagnose = ( isset( $_POST['options'] ) && in_array( 'diagnose', $_POST['options'] ) ) ? true : false;
@@ -64,7 +62,7 @@
 			<div
 				style="background: url(transcheck.png) repeat; width:<?php echo $width; ?>px; height:<?php echo $height; ?>px;">
 				<img width="<?php echo $width; ?>px" height="<?php echo $height; ?>px"
-					 src="permatemp/<?php echo substr( strtolower( $name ), 0, -4 ) . '.png'; ?>"/></div></p>
+					 src="<?php echo $permatempWeb . substr( strtolower( $name ), 0, -4 ) . '.png'; ?>"/></div></p>
 			<?php
 			if( $diagnose ){
 				$f = fopen( $svgPath, 'r' ) or die( "There was an error reading the file for error diagnosis purposes." );
