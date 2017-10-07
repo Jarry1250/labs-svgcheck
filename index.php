@@ -97,7 +97,6 @@
 			$old = $_POST["old"];
 			$old = preg_replace( $charset, '', $old );
 			if( strtolower( substr( $old, -4 ) ) == '.svg' ){
-				unlink( $permatempPath . strtolower( $old ) );
 				unlink( $permatempPath . substr( strtolower( $old ), 0, -4 ) . ".png" );
 			}
 		}
